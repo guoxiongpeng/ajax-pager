@@ -48,8 +48,9 @@
             _self.opts = $.extend({}, _self.opts, op);
             _self.pagerElement = obj;
 
-            _self.doPage(_self.opts.pageIndex, _self.opts.pageSize, _self.opts.searchParam);
-
+           // _self.doPage(_self.opts.pageIndex, _self.opts.pageSize, _self.opts.searchParam);
+            //初始化分页时，默认从第1页开始。防止查询结果改变时，初始页码不改变
+            _self.doPage(1, _self.opts.pageSize, _self.opts.searchParam);
             return _self.opts;
         },
         doPage: function (index, pageSize, searchParam) {
@@ -79,7 +80,9 @@
                     //后台返回数据格式：{"total":0,"items":[]}
                     _self.opts.totalCount = data.total;
                     _self.getTotalPage();
-                    if (_self.opts.totalCount > 0 && _self.opts.pageIndex > 0) {
+                    //if (_self.opts.totalCount > 0 && _self.opts.pageIndex > 0) {
+                    //getTotalPage中设置总页数默认为1，取消查询结果条数判断。防止查询结果为0条时，页码不更新
+                    if (_self.opts.pageIndex > 0) {
                         var pageTextArr = new Array;
 
                         _self.createPreAndFirstBtn(pageTextArr);
@@ -96,7 +99,13 @@
         getTotalPage: function() {
             var _self = this;
 
-            _self.opts.totalPage = Math.ceil(_self.opts.totalCount / _self.opts.pageSize);
+            //_self.opts.totalPage = Math.ceil(_self.opts.totalCount / _self.opts.pageSize);
+            //查询结果为0条时，设置总页数为1。防止查询结果为0条时，页码不更新
+            if (_self.opts.totalCount > 0)
+				_self.opts.totalPage = Math.ceil(_self.opts.totalCount
+						/ _self.opts.pageSize);
+			else if (_self.opts.totalCount == 0)
+				_self.opts.totalPage = 1;
         },
         createPreAndFirstBtn: function (pageTextArr) {
             var _self = this;
